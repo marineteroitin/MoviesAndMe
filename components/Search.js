@@ -13,17 +13,22 @@ class Search extends React.Component {
             isLoading: false // Par défaut à false car il n'y a pas de chargement tant qu'on ne lance pas de recherche
         }
         this.searchedText = "" // pas dans state sinon appel API à chaque caractère saisie
+        this.page = 0
+        this.totalPages = 0
     }
 
 
-    _loadFilms(){
-        this.setState({isLoading: true}) // Lancement du chargement
-        if(this.searchedText.length > 0) {
-            getFilmsFromApiWithSearchedText(this.searchedText)
-                .then(data => this.setState({
-                    films: data.results,
-                    isLoading: false // Arrêt du chargement
-                }));
+    _loadFilms() {
+        if (this.searchedText.length > 0) {
+            this.setState({ isLoading: true }) // lancement chargement
+            getFilmsFromApiWithSearchedText(this.searchedText, this.page+1).then(data => {
+                this.page = data.page
+                this.totalPages = data.total_pages
+                this.setState({
+                    films: [ ...this.state.films, ...data.results ], //... crée une copie, ici je met dans un tableau la copie des 2
+                    isLoading: false // fin du chargement
+                })
+            })
         }
     }
 
@@ -42,6 +47,17 @@ class Search extends React.Component {
         }
     }
 
+    _searchFilms() {
+        this.page = 0
+        this.totalPages = 0
+        this.setState({
+            films: []
+        }, () => {
+            this._loadFilms()
+        })
+
+    }
+
     render() {
         return (
             <View style={styles.main_container}>
@@ -49,12 +65,18 @@ class Search extends React.Component {
                     style={styles.textinput}
                     placeholder='Titre du film'
                     onChangeText={(text) => this._searchTextInputChanged(text)}
-                    onSubmitEditing={() => this._loadFilms()}
+                    onSubmitEditing={() => this._searchFilms()}
                 />
-                <Button title='Rechercher' onPress={() => this._loadFilms()}/>
+                <Button title='Rechercher' onPress={() => this._searchFilms ()}/>
                 <FlatList
                     data={this.state.films}
                     keyExtractor={(item) => item.id.toString()}
+                    onEndReachThreashold={0.5}
+                    onEndReached={ () => {
+                        if(this.page < this.totalPages){
+                            this._loadFilms();
+                        }
+                    }}
                     renderItem={({item}) => <FilmItem film={item}/>}
                 />
                 {this._displayLoading()}
