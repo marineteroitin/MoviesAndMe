@@ -1,5 +1,3 @@
-// Components/FilmList.js
-
 import React from 'react'
 import { StyleSheet, FlatList } from 'react-native'
 import FilmItem from './FilmItem'
@@ -32,13 +30,13 @@ class FilmList extends React.Component {
                     <FilmItem
                         film={item}
                         // Ajout d'une props isFilmFavorite pour indiquer à l'item d'afficher un 🖤 ou non
-                        isFilmFavorite={(this.props.favoritesFilm.findIndex(film => film.id === item.id) !== -1) ? true : false}
+                        isFilmFavorite={(this.props.favoritesFilm.findIndex(film => film.id === item.id) !== -1)}
                         displayDetailForFilm={this._displayDetailForFilm}
                     />
                 )}
                 onEndReachedThreshold={0.5}
                 onEndReached={() => {
-                    if (this.props.page < this.props.totalPages) {
+                    if (!this.props.favoriteList && this.props.page < this.props.totalPages) {
                         // On appelle la méthode loadFilm du component Search pour charger plus de films
                         this.props.loadFilms()
                     }

@@ -17,6 +17,8 @@ class Search extends React.Component {
         this.searchedText = "" // pas dans state sinon appel API à chaque caractère saisie
         this.page = 0
         this.totalPages = 0
+
+        this._loadFilms = this._loadFilms.bind(this)
     }
 
 
