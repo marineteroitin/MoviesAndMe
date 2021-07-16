@@ -8,6 +8,7 @@ import {createStackNavigator} from 'react-navigation-stack';
 import Search from "../components/Search";
 import FilmDetail from "../components/FilmDetail";
 import Favorites from '../components/Favorites';
+import Test from '../components/Test';
 
 
 const SearchStackNavigator = createStackNavigator({
@@ -35,6 +36,9 @@ const FavoriteStackNavigator = createStackNavigator({
 })
 
 const MoviesTabNavigator = createBottomTabNavigator({
+  /*  Test: {
+        screen: Test
+    }, */
     Search:{
         screen: SearchStackNavigator,
         navigationOptions: {

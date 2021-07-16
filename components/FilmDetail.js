@@ -1,11 +1,30 @@
 import React from 'react'
-import { StyleSheet, View, Text, ActivityIndicator, ScrollView, Image, TouchableOpacity } from 'react-native'
+import { StyleSheet, Platform, View, Text, ActivityIndicator, ScrollView, Image, TouchableOpacity, Share } from 'react-native'
 import { getFilmDetailFromApi, getImageFromApi } from "../API/TMDBAPI";
 import moment from 'moment'; // pour les dates
 import numeral from 'numeral'; // pour format prix
-import { connect} from "react-redux"; //pour connecter le store
+import { connect} from "react-redux";
 
 class FilmDetail extends React.Component {
+
+    // IOS mettre le boutton de partage dans la barre de navigation
+    // ATTENTION static = pas accès aux fonctions ni aux variables
+    static navigationOptions = ({ navigation }) => {
+        const { params } = navigation.state
+        // On accède à la fonction shareFilm et au film via les paramètres qu'on a ajouté à la navigation
+        if (params.film !== undefined && Platform.OS === 'ios') {
+            return {
+                // On a besoin d'afficher une image, il faut donc passe par une Touchable une fois de plus
+                headerRight: <TouchableOpacity
+                    style={styles.share_touchable_headerrightbutton}
+                    onPress={() => params.shareFilm()}>
+                    <Image
+                        style={styles.share_image}
+                        source={require('../images/ic_share.ios.png')} />
+                </TouchableOpacity>
+            }
+        }
+    }
 
     constructor(props) {
         super(props);
@@ -13,6 +32,14 @@ class FilmDetail extends React.Component {
             film: undefined, // Pour l'instant on n'a pas les infos du film, on initialise donc le film à undefined.
             isLoading: true // A l'ouverture de la vue, on affiche le chargement, le temps de récupérer le détail du film
         }
+    }
+
+    // pour passer des données de notre component à une fonction static
+    _updateNavigationParams() {
+        this.props.navigation.setParams( {
+            shareFilm: this._shareFilm,
+                film: this.state.film
+        })
     }
 
     componentDidMount() {
@@ -24,7 +51,7 @@ class FilmDetail extends React.Component {
             this.setState({
                 film: this.props.favoritesFilm[favoritFilmIndex],
                 isLoading: false
-            })
+            }, () => {this._updateNavigationParams()})
             return
         }
         // Le film n'est pas dans nos favoris, on n'a pas son détail
@@ -34,7 +61,7 @@ class FilmDetail extends React.Component {
                 this.setState({
                     film: data,
                     isLoading: false
-                })
+                }, () => {this._updateNavigationParams()})
             })
     }
 
@@ -105,12 +132,33 @@ class FilmDetail extends React.Component {
         }
     }
 
+    // Ne pas oublier de binder la fonction _shareFilm sinon, lorsqu'on va l'appeler depuis le headerRight de la navigation, this.state.film sera undefined et fera planter l'application
+    _shareFilm = () => {
+        const { film } = this.state
+        Share.share({ title: film.title, message: film.overview })
+    }
+
+    _displayFloatingActionButton() {
+        const { film } = this.state
+        if (film !== undefined && Platform.OS === 'android') { // Uniquement sur Android et lorsque le film est chargé
+            return (
+                <TouchableOpacity
+                    style={styles.share_touchable_floatingactionbutton}
+                    onPress={() => this._shareFilm()}>
+                    <Image
+                        style={styles.share_image}
+                        source={require('../images/ic_share.android.png')} />
+                </TouchableOpacity>
+            )
+        }
+    }
 
     render() {
        return (
             <View style={styles.main_container}>
                 {this._displayFilm()}
                 {this._displayLoading()}
+                {this._displayFloatingActionButton()}
             </View>
         )
     }
@@ -165,6 +213,24 @@ const styles = StyleSheet.create({
     favorite_image: {
         width: 40,
         height: 40
+    },
+    share_touchable_floatingactionbutton: {
+        position: 'absolute',
+        width: 60,
+        height: 60,
+        right: 30,
+        bottom: 30,
+        borderRadius: 30,
+        backgroundColor: '#e91e63',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    share_image: {
+        width: 30,
+        height: 30
+    },
+    share_touchable_headerrightbutton: {
+        marginRight: 8
     }
 })
 

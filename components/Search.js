@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, View, Button, Text, TextInput, FlatList, ActivityIndicator} from "react-native";
+import {StyleSheet, View, Button, Text, TextInput, FlatList, ActivityIndicator, SafeAreaView} from "react-native";
 // import films from '../helpers/FilmData';
 import FilmItem from './FilmItem';
 import FilmList from "./FilmList";
@@ -66,6 +66,7 @@ class Search extends React.Component {
 
     render() {
         return (
+            <SafeAreaView style={styles.main_container}>
             <View style={styles.main_container}>
                 <TextInput
                     style={styles.textinput}
@@ -83,6 +84,7 @@ class Search extends React.Component {
                 />
                 {this._displayLoading()}
             </View>
+            </SafeAreaView>
         )
     }
 }
