@@ -9,6 +9,7 @@ import Search from "../components/Search";
 import FilmDetail from "../components/FilmDetail";
 import Favorites from '../components/Favorites';
 import Test from '../components/Test';
+import TestAnimated from "../components/TestAnimated";
 
 
 const SearchStackNavigator = createStackNavigator({
@@ -38,7 +39,11 @@ const FavoriteStackNavigator = createStackNavigator({
 const MoviesTabNavigator = createBottomTabNavigator({
   /*  Test: {
         screen: Test
-    }, */
+    },
+    TestAnimated: {
+        screen: TestAnimated
+    },
+    */
     Search:{
         screen: SearchStackNavigator,
         navigationOptions: {

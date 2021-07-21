@@ -4,6 +4,7 @@ import { getFilmDetailFromApi, getImageFromApi } from "../API/TMDBAPI";
 import moment from 'moment'; // pour les dates
 import numeral from 'numeral'; // pour format prix
 import { connect} from "react-redux";
+import EnlargeShrink from "../animations/EnlargeShrink";
 
 class FilmDetail extends React.Component {
 
@@ -76,15 +77,21 @@ class FilmDetail extends React.Component {
 
     displayFavoriteImage() {
         var sourceImage = require('../images/ic_favorite_border.png');
+        var souldEnlarge = false // par défaut le film n'es pas en favoris, donc petit coeur
+
         if(this.props.favoritesFilm.findIndex(item => item.id === this.state.film.id) !== -1){
             sourceImage = require('../images/ic_favorite.png');
+            souldEnlarge = true // le coeur doit grossir
         }
 
         return (
+            <EnlargeShrink
+                souldEnlarge={souldEnlarge}>
             <Image
                 source={sourceImage}
                 style={styles.favorite_image}
             />
+            </EnlargeShrink>
         )
     }
 
@@ -211,8 +218,9 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     favorite_image: {
-        width: 40,
-        height: 40
+        flex: 1,
+        width: null,
+        height: null
     },
     share_touchable_floatingactionbutton: {
         position: 'absolute',
